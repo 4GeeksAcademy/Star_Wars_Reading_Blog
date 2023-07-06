@@ -1,57 +1,105 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useStore } from "../store/flux.js"; // Import the useStore custom hook
+import { useStore, Actions } from "../store/flux";
+import axios from 'axios';
 
 const Home = () => {
   const [people, setPeople] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [planets, setPlanets] = useState([]);
 
-  const store = useStore(); // Use the custom hook to access the store
+  const store = useStore();
 
   useEffect(() => {
     const fetchData = async () => {
-      const peopleData = await store.fetchPeople();
-      setPeople(peopleData.map(person => ({ uid: person.uid, name: person.name })));
+      const peopleData = await Actions.fetchPeople();
+      setPeople(peopleData);
 
-      const vehiclesData = await store.fetchVehicles();
-      setVehicles(vehiclesData.map(vehicle => ({ uid: vehicle.uid, name: vehicle.name })));
+      const vehiclesData = await Actions.fetchVehicles();
+      setVehicles(vehiclesData);
 
-      const planetsData = await store.fetchPlanets();
-      setPlanets(planetsData.map(planet => ({ uid: planet.uid, name: planet.name })));
+      const planetsData = await Actions.fetchPlanets();
+      setPlanets(planetsData);
     };
 
     fetchData();
-  }, [store]);
+  }, []);
+
+  const handleFavorite = (type, uid) => {
+    // Implement your favorite logic here
+    console.log(`Favorite ${type} with UID: ${uid}`);
+  };
 
   return (
     <div>
       <h2>People</h2>
-      <ul>
+      <div className="card-group">
         {people.map(person => (
-          <li key={person.uid}>
-            <Link to={`/people/${person.uid}`}>{person.name}</Link>
-          </li>
+          <div className="card" key={person.uid}>
+            <div className="card-body">
+              <h5 className="card-title">{person.name}</h5>
+              <p className="card-text">
+                Gender: {person.gender}<br />
+                Hair Color: {person.hairColor}<br />
+                Eye Color: {person.eyeColor}
+              </p>
+              <Link to={`/people/${person.uid}`} className="btn btn-primary">
+                View Details
+              </Link>
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => handleFavorite('person', person.uid)}
+              >
+                Add to Favorites
+              </button>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
 
       <h2>Vehicles</h2>
-      <ul>
+      <div className="card-group">
         {vehicles.map(vehicle => (
-          <li key={vehicle.uid}>
-            <Link to={`/vehicles/${vehicle.uid}`}>{vehicle.name}</Link>
-          </li>
+          <div className="card" key={vehicle.uid}>
+            <div className="card-body">
+              <h5 className="card-title">{vehicle.name}</h5>
+              <p className="card-text">
+                Model: {vehicle.model}<br />
+                Manufacturer: {vehicle.manufacturer}
+              </p>
+              <Link to={`/vehicles/${vehicle.uid}`} className="btn btn-primary">
+                View Details
+              </Link>
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => handleFavorite('vehicle', vehicle.uid)}
+              >
+                Add to Favorites
+              </button>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
 
       <h2>Planets</h2>
-      <ul>
+      <div className="card-group">
         {planets.map(planet => (
-          <li key={planet.uid}>
-            <Link to={`/planets/${planet.uid}`}>{planet.name}</Link>
-          </li>
+          <div className="card" key={planet.uid}>
+            <div className="card-body">
+              <h5 className="card-title">{planet.name}</h5>
+              <Link to={`/planets/${planet.uid}`} className="btn btn-primary">
+                View Details
+              </Link>
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => handleFavorite('planet', planet.uid)}
+              >
+                Add to Favorites
+              </button>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };

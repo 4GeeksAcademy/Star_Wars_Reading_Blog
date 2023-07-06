@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
 const EntityDetails = ({ entityType }) => {
   const [entity, setEntity] = useState(null);
   const { id } = useParams();
 
   useEffect(() => {
-    fetch(`https://www.swapi.dev/api/${entityType}/${id}`)
-      .then(response => response.json())
-      .then(data => setEntity(data.result.properties));
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`https://swapi.dev/api/${entityType}/${id}/`);
+        setEntity(response.data);
+      } catch (error) {
+        console.error('Error fetching entity details:', error);
+      }
+    };
+
+    fetchData();
   }, [entityType, id]);
 
   if (!entity) {
@@ -18,8 +26,10 @@ const EntityDetails = ({ entityType }) => {
   return (
     <div>
       <h2>{entity.name}</h2>
-      <p>{entity.description}</p>
-      <p>Other details: {JSON.stringify(entity)}</p>
+      <p>Height: {entity.height}</p>
+      <p>Mass: {entity.mass}</p>
+      <p>Hair Color: {entity.hair_color}</p>
+      <p>Skin Color: {entity.skin_color}</p>
     </div>
   );
 };

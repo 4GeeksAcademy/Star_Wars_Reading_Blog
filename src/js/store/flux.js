@@ -1,63 +1,78 @@
 import { EventEmitter } from 'events';
+import axios from 'axios'; // Import axios
 
-// Create a new event emitter
 const eventEmitter = new EventEmitter();
 
-// Initial state
 let state = {
   people: [],
   vehicles: [],
   planets: [],
 };
 
-// Action types
 const ActionTypes = {
   FETCH_PEOPLE: 'FETCH_PEOPLE',
   FETCH_VEHICLES: 'FETCH_VEHICLES',
   FETCH_PLANETS: 'FETCH_PLANETS',
-  // Other action types...
 };
 
-// Action creators
 const Actions = {
   fetchPeople() {
-    return fetch('https://swapi.dev/api/people/')
-      .then(response => response.json())
-      .then(data => {
-        const peopleData = data.results.map(person => ({
-          uid: person.uid,
+    return axios
+      .get('https://swapi.dev/api/people/')
+      .then(response => {
+        const peopleData = response.data.results.map(person => ({
+          uid: person.url,
           name: person.name,
+          gender: person.gender,
+          hairColor: person.hair_color,
+          eyeColor: person.eye_color,
         }));
+        state = {
+          ...state,
+          people: peopleData,
+        };
+        eventEmitter.emit('change');
         return peopleData;
       });
   },
 
   fetchVehicles() {
-    return fetch('https://swapi.dev/api/vehicles/')
-      .then(response => response.json())
-      .then(data => {
-        const vehiclesData = data.results.map(vehicle => ({
-          uid: vehicle.uid,
+    return axios
+      .get('https://swapi.dev/api/vehicles/')
+      .then(response => {
+        const vehiclesData = response.data.results.map(vehicle => ({
+          uid: vehicle.url,
           name: vehicle.name,
+          model: vehicle.model,
+          manufacturer: vehicle.manufacturer,
         }));
+        state = {
+          ...state,
+          vehicles: vehiclesData,
+        };
+        eventEmitter.emit('change');
         return vehiclesData;
       });
   },
 
   fetchPlanets() {
-    return fetch('https://swapi.dev/api/planets/')
-      .then(response => response.json())
-      .then(data => {
-        const planetsData = data.results.map(planet => ({
-          uid: planet.uid,
+    return axios
+      .get('https://swapi.dev/api/planets/')
+      .then(response => {
+        const planetsData = response.data.results.map(planet => ({
+          uid: planet.url,
           name: planet.name,
         }));
+        state = {
+          ...state,
+          planets:planetsData,
+        };
+        eventEmitter.emit('change');
         return planetsData;
       });
   },
 };
 
-// Getters
 const Store = {
   getPeople() {
     return state.people;
@@ -72,37 +87,21 @@ const Store = {
   },
 };
 
-// Custom hook to access the store
 const useStore = () => {
   const fetchPeople = () => {
     return Actions.fetchPeople().then(peopleData => {
-      state = {
-        ...state,
-        people: peopleData,
-      };
-      eventEmitter.emit('change');
       return peopleData;
     });
   };
 
   const fetchVehicles = () => {
     return Actions.fetchVehicles().then(vehiclesData => {
-      state = {
-        ...state,
-        vehicles: vehiclesData,
-      };
-      eventEmitter.emit('change');
       return vehiclesData;
     });
   };
 
   const fetchPlanets = () => {
     return Actions.fetchPlanets().then(planetsData => {
-      state = {
-        ...state,
-        planets: planetsData,
-      };
-      eventEmitter.emit('change');
       return planetsData;
     });
   };

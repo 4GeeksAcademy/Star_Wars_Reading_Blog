@@ -10,19 +10,10 @@ const Layout = () => {
     <Router>
       <FavoritesProvider>
         <Routes>
-          <Route exact path="/" element={<Home />} />
-          <Route
-            path="/people/:id"
-            element={<EntityDetails entityType="people" />}
-          />
-          <Route
-            path="/vehicles/:id"
-            element={<EntityDetails entityType="vehicles" />}
-          />
-          <Route
-            path="/planets/:id"
-            element={<EntityDetails entityType="planets" />}
-          />
+          <Route path="/" element={<Home />} />
+          <Route path="/people/:id" element={<EntityDetails entityType="people" />} />
+          <Route path="/vehicles/:id" element={<EntityDetails entityType="vehicles" />} />
+          <Route path="/planets/:id" element={<EntityDetails entityType="planets" />} />
           <Route path="/favorites" element={<FavoritesPage />} />
         </Routes>
       </FavoritesProvider>
