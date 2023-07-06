@@ -5,7 +5,7 @@ import Home from "./views/home.js";
 import EntityDetails from "./views/EntityDetails.js";
 import FavoritesPage from "./views/FavoritesPage.js";
 
-export const Layout = () => {
+const Layout = () => {
   return (
     <Router>
       <FavoritesProvider>
@@ -29,3 +29,5 @@ export const Layout = () => {
     </Router>
   );
 };
+
+export default Layout;

@@ -1,38 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useStore } from "../store/flux.js"; // Import the useStore custom hook
 
 const Home = () => {
   const [people, setPeople] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [planets, setPlanets] = useState([]);
 
+  const store = useStore(); // Use the custom hook to access the store
+
   useEffect(() => {
-    Actions.fetchPeople();
-    Actions.fetchVehicles();
-    Actions.fetchPlanets();
+    const fetchData = async () => {
+      const peopleData = await store.fetchPeople();
+      setPeople(peopleData.map(person => ({ uid: person.uid, name: person.name })));
 
-    // Subscribe to change events from the store
-    eventEmitter.on('change', handleStoreChange);
+      const vehiclesData = await store.fetchVehicles();
+      setVehicles(vehiclesData.map(vehicle => ({ uid: vehicle.uid, name: vehicle.name })));
 
-    return () => {
-      // Unsubscribe from change events when the component unmounts
-      eventEmitter.removeListener('change', handleStoreChange);
+      const planetsData = await store.fetchPlanets();
+      setPlanets(planetsData.map(planet => ({ uid: planet.uid, name: planet.name })));
     };
-  }, []);
 
-  const handleStoreChange = () => {
-    setPeople(Store.getPeople());
-    setVehicles(Store.getVehicles());
-    setPlanets(Store.getPlanets());
-  };
+    fetchData();
+  }, [store]);
 
   return (
     <div>
       <h2>People</h2>
       <ul>
         {people.map(person => (
-          <li key={person.url}>
-            <Link to={`/people/${person.uid}`}>{person.properties.name}</Link>
+          <li key={person.uid}>
+            <Link to={`/people/${person.uid}`}>{person.name}</Link>
           </li>
         ))}
       </ul>
@@ -40,8 +38,8 @@ const Home = () => {
       <h2>Vehicles</h2>
       <ul>
         {vehicles.map(vehicle => (
-          <li key={vehicle.url}>
-            <Link to={`/vehicles/${vehicle.uid}`}>{vehicle.properties.name}</Link>
+          <li key={vehicle.uid}>
+            <Link to={`/vehicles/${vehicle.uid}`}>{vehicle.name}</Link>
           </li>
         ))}
       </ul>
@@ -49,8 +47,8 @@ const Home = () => {
       <h2>Planets</h2>
       <ul>
         {planets.map(planet => (
-          <li key={planet.url}>
-            <Link to={`/planets/${planet.uid}`}>{planet.properties.name}</Link>
+          <li key={planet.uid}>
+            <Link to={`/planets/${planet.uid}`}>{planet.name}</Link>
           </li>
         ))}
       </ul>

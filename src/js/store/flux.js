@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events';
-import Dispatcher from './Dispatcher';
 
 // Create a new event emitter
 const eventEmitter = new EventEmitter();
@@ -22,72 +21,41 @@ const ActionTypes = {
 // Action creators
 const Actions = {
   fetchPeople() {
-    fetch('https://swapi.dev/api/people/')
+    return fetch('https://swapi.dev/api/people/')
       .then(response => response.json())
       .then(data => {
-        Dispatcher.dispatch({
-          type: ActionTypes.FETCH_PEOPLE,
-          payload: data.results,
-        });
+        const peopleData = data.results.map(person => ({
+          uid: person.uid,
+          name: person.name,
+        }));
+        return peopleData;
       });
   },
 
   fetchVehicles() {
-    fetch('https://swapi.dev/api/vehicles/')
+    return fetch('https://swapi.dev/api/vehicles/')
       .then(response => response.json())
       .then(data => {
-        Dispatcher.dispatch({
-          type: ActionTypes.FETCH_VEHICLES,
-          payload: data.results,
-        });
+        const vehiclesData = data.results.map(vehicle => ({
+          uid: vehicle.uid,
+          name: vehicle.name,
+        }));
+        return vehiclesData;
       });
   },
 
   fetchPlanets() {
-    fetch('https://swapi.dev/api/planets/')
+    return fetch('https://swapi.dev/api/planets/')
       .then(response => response.json())
       .then(data => {
-        Dispatcher.dispatch({
-          type: ActionTypes.FETCH_PLANETS,
-          payload: data.results,
-        });
+        const planetsData = data.results.map(planet => ({
+          uid: planet.uid,
+          name: planet.name,
+        }));
+        return planetsData;
       });
   },
 };
-
-// Handle actions
-Dispatcher.register(action => {
-  switch (action.type) {
-    case ActionTypes.FETCH_PEOPLE:
-      state = {
-        ...state,
-        people: action.payload,
-      };
-      eventEmitter.emit('change');
-      break;
-
-    case ActionTypes.FETCH_VEHICLES:
-      state = {
-        ...state,
-        vehicles: action.payload,
-      };
-      eventEmitter.emit('change');
-      break;
-
-    case ActionTypes.FETCH_PLANETS:
-      state = {
-        ...state,
-        planets: action.payload,
-      };
-      eventEmitter.emit('change');
-      break;
-
-    // Handle other actions...
-
-    default:
-      break;
-  }
-});
 
 // Getters
 const Store = {
@@ -104,4 +72,46 @@ const Store = {
   },
 };
 
-export { Actions, Store, eventEmitter };
+// Custom hook to access the store
+const useStore = () => {
+  const fetchPeople = () => {
+    return Actions.fetchPeople().then(peopleData => {
+      state = {
+        ...state,
+        people: peopleData,
+      };
+      eventEmitter.emit('change');
+      return peopleData;
+    });
+  };
+
+  const fetchVehicles = () => {
+    return Actions.fetchVehicles().then(vehiclesData => {
+      state = {
+        ...state,
+        vehicles: vehiclesData,
+      };
+      eventEmitter.emit('change');
+      return vehiclesData;
+    });
+  };
+
+  const fetchPlanets = () => {
+    return Actions.fetchPlanets().then(planetsData => {
+      state = {
+        ...state,
+        planets: planetsData,
+      };
+      eventEmitter.emit('change');
+      return planetsData;
+    });
+  };
+
+  return {
+    fetchPeople,
+    fetchVehicles,
+    fetchPlanets,
+  };
+};
+
+export { Actions, Store, eventEmitter, useStore };
